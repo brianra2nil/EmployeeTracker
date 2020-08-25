@@ -195,33 +195,51 @@ const viewRoles = () => {
 }
 
 const addRole = () => {
+    db.query('SELECT * FROM department', (err, departments) => {
+        if (err) { console.log(err) }
     
-    prompt([
-        {
-        type: 'input',
-        name: 'title',
-        message: 'What is the title of the role?'
-      },
-      {
-        type: 'input',
-        name: 'salary',
-        message: 'What is the salary of the role?'  
-      }
-    //   {
-    //     type: 'list',
-    //     name: 'department_id',
-    //     message: 'Which department does this role belong to?',
-    //     choices: departments
-    //   }
-    ])
-      .then(role => {
-        db.query('INSERT INTO role SET ?', role, (err) => {
-          if (err) { console.log(err) }
-          console.log('Role Created!')
-          start()
+        departments = departments.map(department => ({
+          name: department.name,
+          value: department.id
+        }))
+    
+        db.query('SELECT * FROM role', (err, roles) => {
+    
+          roles = roles.map(role => ({
+            name: `${role.title} ${role.salary}`,
+            value: role.id
+          }))
+          
+          roles.unshift({ name: 'None', value: null })
+    
+          prompt([
+            {
+              type: 'input',
+              name: 'title',
+              message: 'What is the title of the role?'
+            },
+            {
+              type: 'input',
+              name: 'salary',
+              message: 'What is the salary?'
+            },
+            {
+              type: 'list',
+              name: 'department_id',
+              message: 'choose department:',
+              choices: departments
+            }
+          ])
+            .then(role => {
+              db.query('INSERT INTO role SET ?', role, (err) => {
+                if (err) { console.log(err) }
+                console.log('Role Created!')
+                start()
+              })
+            })
+            .catch(err => console.log(err))
         })
       })
-      .catch(err => console.log(err))
 }
 
 start()
