@@ -144,16 +144,43 @@ const addEmployee = () => {
 }
 
 const updateEmployeeRole = () => {
-//     db.query(`
-//     SELECT employee.name FROM employee
-//   `, (err, employees) => {
-//     employees = employees.map(employee => ({
-//       name: `${employee.first_name} ${employee.last_name}`,
-//       value: employee.id
-//     }))
-// ​
+    db.query('SELECT * FROM employee', (err, employees) => {
+        employees = employees.map(employee => ({
+          name: `${employee.first_name} ${employee.last_name}`,
+          value: employee.id
+        }))
+        db.query('SELECT * FROM role', (err, roles) => {
+          roles = roles.map(role => ({
+            name: role.title,
+            value: role.id
+          }))
+          
+            prompt([
+              {
+                type: 'list',
+                name: 'employee_id',
+                message: 'Choose an employee to update',
+                choices: employees
+              },
+              {
+                type: 'list',
+                name: 'role_id',
+                message: 'Choose the employee new role',
+                choices: roles
+              },
+            ])
+            .then(employee => {
+              console.log(employee.role_id)
+              db.query('UPDATE employee SET role_id = ? WHERE employee.id = ?', [employee.role_id, employee.employee_id], (err) => {
+                if (err) { console.log(err) }
+                console.log('employee updated')
+                start()
+              })
+            })
+            .catch(err => { console.log(err) })
+        })
+      })
     
-//   })
 }
 
 const viewDepartments = () => {
